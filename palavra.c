@@ -17,38 +17,35 @@ void zera_palavra(char *from, char *to){
 	*(to++) = '\0';
 }
 
-
-
-char *recebe_vetor(char *str){
+char *ler_vetor(FILE *arq){
+	char *str;
 	unsigned int tamanho = 16, i = 0;
-	int c = EOF;
+	int c;
 	str = realloc(NULL,sizeof(char) * tamanho);
 	if(!str){
 		printf("\nErro de alocacao\n");
 		return NULL;
 	}
-	getchar();
-	while (( c = getchar() ) != '\n' && c != EOF){
+	if(arq == stdin) getchar();
+	while (( c = fgetc(arq) ) != EOF && c != '\n' && c != '\0'){
 		str[i++] = c;
 		if(i == tamanho){
 			tamanho += i;
 			str = realloc(str,sizeof(char) * tamanho);
-			if(!str) printf("Erro realloc");
+			if(!str) printf("Erro realloc\n");
 		}
 	}
 	str[i] = '\0';
-	return realloc(str,sizeof(char)*tamanho);
+	return realloc( str, sizeof(char)*(strlen(str)+1) );
 }
 
-struct Palavra *criar_palavra(char *word,int nivel){
-	struct Palavra sword = {nivel,*word};
-	// sword = malloc( sizeof(*sword) + ( sizeof(char) * strlen(word) ) );
-	//
-	// if(!sword){
-	// 	printf("Erro de alocacao");
-	// 	exit(1);
-	// }
-	// sword->dificuldade = nivel;
-	// strcpy(sword->palavra,word);
+struct Palavra *criar_palavra(struct Palavra *sword, char *word,int nivel){
+	sword = malloc( sizeof(*sword) + ( sizeof(char) * strlen(word) ) );
+	if(!sword){
+		printf("Erro de alocacao\n");
+		exit(1);
+	}
+	sword->dificuldade = nivel;
+	strcpy(sword->palavra,word);
 	return sword;
 }

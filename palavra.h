@@ -8,7 +8,7 @@ struct Palavra{
 
 void zera_palavra(char *from, char *to);
 void acha_letra(char *palavra, char *forca, char letra);
-char *recebe_vetor(char *str);
+char *ler_vetor(FILE *arq);
 
 struct Palavra *criar_palavra(struct Palavra *sword, char *word,int nivel);
 

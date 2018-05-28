@@ -1,23 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "palavra.h"
 
-int menu();
+#define FILENAME "wordbank"
 
+int menu();
 void jogar();
 int selecionar_nivel();
 void menu_cadastrar();
 
 void add_ao_banco(struct Palavra *sword, char *filename);
-char *sortear_palavra(char *filename);
+struct Palavra *fread_palavra(struct Palavra *sword,FILE *arq);
+char *palavra_aleatoria(FILE *arq,int nivel);
 
-#define FILENAME "wordbank"
-#define EASY "easy"
-#define MEDIUM "medium"
-#define HARD "hard"
+int NUM_P;
 
 int main() {
+	srand( time(NULL) );
+	NUM_P = 0;
  	for(;;){
   		if (menu() == 0) return 0;
 		else return 1;
@@ -42,8 +44,8 @@ int menu(){
 				break;
 			case 4:
 				// creditos();
-				printf("\nTora Balde\n");
-				sortear_palavra(FILENAME);
+				printf("\nTora Balde\n (aperte qualquer tecla para voltar)\n");
+				getchar();
 				break;
 			case 5:
 				printf("\n!\n");
@@ -56,27 +58,34 @@ int menu(){
 }
 
 void jogar(){
-	int *nivel;
+	int nivel;
 	char *word,*empty;
+	FILE *arq;
 
-	word = malloc(sizeof(char));
+	arq = fopen("wordbank","rb");
+	if (!arq){
+		printf("Erro ao abrir arquivo\n");
+		exit(1);
+	}
+	// word = malloc(sizeof(char));
+	nivel = selecionar_nivel();
+	word = palavra_aleatoria(arq,nivel);
+	printf("\n+++\n>%s<\n",word);
 
-	selecionar_nivel(nivel);
-
-	word = recebe_vetor(word);
+	// word = ler_vetor(stdin);
 
 	// sorteia_palavra();
 
 	//word = (char *) malloc(20);
-	empty = (char *) malloc(sizeof(word));
+	// empty = (char *) malloc(sizeof(word));
 	//word = "marcelo rolim";
-	zera_palavra(word,empty);
-	printf("\n1-\n%s\n%s", word,empty);
-	acha_letra(word,empty,'a');
-	printf("\n%s\n%s\n", word,empty);
-
-	free(word);
-	free(empty);
+	// zera_palavra(word,empty);
+	// printf("\n1-\n%s\n%s", word,empty);
+	// acha_letra(word,empty,'a');
+	// printf("\n%s\n%s\n", word,empty);
+	//
+	// free(word);
+	// free(empty);
 }
 
 int selecionar_nivel(){
@@ -95,14 +104,14 @@ int selecionar_nivel(){
 void menu_cadastrar(){
 	char *word;
 	int nivel = 0, cont = 1;
-	struct Palavra sword;
+	struct Palavra *sword;
 	do{
 		printf("\nDigite a palavra ou frase que deseja cadastrar na forca:\n> ");
-		word = recebe_vetor(word);
+		word = ler_vetor(stdin);
 		printf("Dificuldade: ");
 		scanf("%d", &nivel);
-		sword = criar_palavra(word,nivel);
-		add_ao_banco(&sword,FILENAME);
+		sword = criar_palavra(sword,word,nivel);
+		add_ao_banco(sword,"wordbank");
 		while(1){
 			char op;
 			printf("Cadastrar outra palavra (s ou n)? ");
@@ -117,32 +126,80 @@ void menu_cadastrar(){
 	}while(cont);
 }
 
+// adiciona uma nova palavra ao banco
 void add_ao_banco(struct Palavra *sword, char *filename){
 	FILE *arq;
-	arq = fopen(filename,"ab");
+	int len = 0;
+	int n = 0;
+	arq = fopen(filename,"r+");
 	if (!arq){
-		printf("Erro ao abrir arquivo");
+		arq = fopen(filename,"w");
+	}
+	fread(&n,sizeof(int),1,arq) != 1 ? n = 1 : n++;
+	rewind(arq);
+	if( fwrite(&n,sizeof(int),1,arq) != 1){
+		printf("Erro ao escrever contador\n");
 		exit(1);
 	}
-	if( fwrite(sword, sizeof(sword), 1, arq) != 1 ){
-		printf("Erro ao escrever em arquivo\n");
+	if(fclose(arq) == EOF){
+		printf("Erro ao fechar arquivo\n");
+	}
+	arq = fopen(filename,"ab");
+	if (!arq){
+		printf("Erro ao abrir arquivo em modo anexo\n");
+		exit(1);
+	}
+	if( fwrite(&(sword->dificuldade), sizeof(int), 1, arq) != 1 ){
+		printf("Erro ao escrever dificuldade em arquivo\n");
+		exit(1);
+	}
+	len = strlen(sword->palavra)+1;
+	if( fwrite(sword->palavra,sizeof(char), len, arq) != len ){
+		printf("Erro ao escrever palavra em arquivo\n");
 		exit(1);
 	}
 	fclose(arq);
 }
 
-char *sortear_palavra(char *filename){
-	FILE *arq;
-	// int i;
-	struct Palavra *p;
-	arq = fopen(filename,"rb");
-	if (!arq){
-		printf("Erro ao abrir arquivo");
+struct Palavra *fread_palavra(struct Palavra *sword,FILE *arq){
+	char *word;
+	sword = malloc(sizeof(struct Palavra));
+	if( fread(&(sword->dificuldade),sizeof(int),1,arq) != 1 ){
+		printf("Erro ao ler dificuldade do arquivo\n");
 		exit(1);
 	}
+	word = ler_vetor(arq);
+	sword = realloc(sword,sizeof(sword) + sizeof(char) * (strlen(word) + 1) );
+	strcpy(sword->palavra,word);
+	return sword;
+}
 
-	for(size_t i = 0; i < 2; i++){
-		fread(p,sizeof(struct Palavra),1,arq);
-		printf("n = %s\n", p->palavra);
+char *palavra_aleatoria(FILE *arq,int nivel){
+	int qnt = 0, random = 0, i = 0;
+	struct Palavra *sword;
+	char *word;
+	if (!arq){
+		printf("Erro arquivo\n");
+		exit(1);
 	}
+	rewind(arq);
+	if( fread(&NUM_P,sizeof(int),1,arq) != 1){
+		printf("Erro leitura NUM_P\n");
+		exit(1);
+	}
+	/*
+		rand() % (max_number + 1 - minimum_number) + minimum_number
+					NUM_P	 + 1 -		1		   +		1
+	*/
+	random = rand() % (NUM_P + 1);
+	printf("\n++\nNUM_P = %d\nrandom = %d\n\n",NUM_P,random);
+	for(i = 1; i <= random; i++){
+		sword = fread_palavra(sword,arq);
+	}
+	word = malloc( sizeof(char) * (strlen(sword->palavra) + 1));
+	strcpy(word,sword->palavra);
+	printf("sword->palavra >%s<\n",sword->palavra);
+	printf("          word >%s<\n",word);
+	printf("FIM ALEATORIA\n");
+	return word;
 }
