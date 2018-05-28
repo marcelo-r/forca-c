@@ -6,7 +6,7 @@ struct Palavra{
 	char palavra[];
 };
 
-void zera_palavra(char *from, char *to);
+void zera_palavra(char *to, char *from);
 void acha_letra(char *palavra, char *forca, char letra);
 char *ler_vetor(FILE *arq);
 

@@ -58,7 +58,7 @@ int menu(){
 }
 
 void jogar(){
-	int nivel;
+	int nivel,tamanho,cont_j,forca;
 	char *word,*empty;
 	FILE *arq;
 
@@ -67,23 +67,26 @@ void jogar(){
 		printf("Erro ao abrir arquivo\n");
 		exit(1);
 	}
-	// word = malloc(sizeof(char));
-	nivel = selecionar_nivel();
-	word = palavra_aleatoria(arq,nivel);
-	printf("\n+++\n>%s<\n",word);
+	do{
+		nivel = selecionar_nivel();
+		word = palavra_aleatoria(arq,nivel);
+		if(!word){
+			printf("Nao existem palavras desse nivel\n");
+			continue;
+		}
+		tamanho = strlen(word);
+		empty = malloc(sizeof(char) * (tamanho + 1));
+		strcpy(empty,word);
+		zera_palavra(empty,word);
+		printf("\nA palavra possui %d letras\n",tamanho);
+		printf("> %s <\n",empty);
+		// forca();
+		// do{
+		// 	// print_forca(empty,tamanho);
+		// }while(forca == 0);
+		// cont_j = 1;
+	}while(cont_j == 0);
 
-	// word = ler_vetor(stdin);
-
-	// sorteia_palavra();
-
-	//word = (char *) malloc(20);
-	// empty = (char *) malloc(sizeof(word));
-	//word = "marcelo rolim";
-	// zera_palavra(word,empty);
-	// printf("\n1-\n%s\n%s", word,empty);
-	// acha_letra(word,empty,'a');
-	// printf("\n%s\n%s\n", word,empty);
-	//
 	// free(word);
 	// free(empty);
 }
@@ -108,8 +111,9 @@ void menu_cadastrar(){
 	do{
 		printf("\nDigite a palavra ou frase que deseja cadastrar na forca:\n> ");
 		word = ler_vetor(stdin);
-		printf("Dificuldade: ");
-		scanf("%d", &nivel);
+		// printf("Dificuldade: ");
+		// scanf("%d", &nivel);
+		nivel = selecionar_nivel();
 		sword = criar_palavra(sword,word,nivel);
 		add_ao_banco(sword,"wordbank");
 		while(1){
@@ -171,11 +175,12 @@ struct Palavra *fread_palavra(struct Palavra *sword,FILE *arq){
 	word = ler_vetor(arq);
 	sword = realloc(sword,sizeof(sword) + sizeof(char) * (strlen(word) + 1) );
 	strcpy(sword->palavra,word);
+	free(word);
 	return sword;
 }
 
 char *palavra_aleatoria(FILE *arq,int nivel){
-	int qnt = 0, random = 0, i = 0;
+	int qnt = 0, random = 0, i = 0, flag_nivel = 0,limite = 0;
 	struct Palavra *sword;
 	char *word;
 	if (!arq){
@@ -189,17 +194,46 @@ char *palavra_aleatoria(FILE *arq,int nivel){
 	}
 	/*
 		rand() % (max_number + 1 - minimum_number) + minimum_number
-					NUM_P	 + 1 -		1		   +		1
+				   NUM_P	 + 1 -		1		   +		1
 	*/
-	random = rand() % (NUM_P + 1);
-	printf("\n++\nNUM_P = %d\nrandom = %d\n\n",NUM_P,random);
-	for(i = 1; i <= random; i++){
-		sword = fread_palavra(sword,arq);
-	}
+
+	/*
+	sorteia uma palavra, se ela nao possuir o nivel desejado,
+	anda até achar uma que tenha o nível,
+	se atingir EOF e nao achar, sorteia novamente
+	*/
+	do{
+		rewind(arq);
+		fseek(arq,sizeof(int),SEEK_SET);
+		do{
+			random = rand() % (NUM_P+1);
+		}while(random == 0);
+		printf("\n++\nNUM_P = %d\nrandom = %d\n\n",NUM_P,random);
+		for(i = 1; i <= random; i++){
+			printf("%d mizera\n",i);
+			sword = fread_palavra(sword,arq);
+		}
+		if(sword->dificuldade == nivel){
+			flag_nivel += 1;
+			// break;
+		}else{
+			int j = NUM_P - random;
+			for(i = 1; i <= j; i++){
+				sword = fread_palavra(sword,arq);
+				if(sword->dificuldade == nivel){
+					flag_nivel += 1;
+					break;
+				}
+			}
+		}
+		if (++limite > 10){
+			free(sword);
+			return NULL;
+		}
+	}while(flag_nivel == 0);
+
 	word = malloc( sizeof(char) * (strlen(sword->palavra) + 1));
 	strcpy(word,sword->palavra);
-	printf("sword->palavra >%s<\n",sword->palavra);
-	printf("          word >%s<\n",word);
-	printf("FIM ALEATORIA\n");
+
 	return word;
 }

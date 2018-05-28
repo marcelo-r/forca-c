@@ -9,12 +9,20 @@ void acha_letra(char *palavra, char *forca, char letra){
   }
 }
 
-void zera_palavra(char *from, char *to){
+void zera_palavra(char *to, char *from){
+	// if(strlen(from) != strlen(to)){
+	// 	to = realloc(to, sizeof(char) * (strlen(from) + 1) );
+	// 	if(!to){
+	// 		printf("Erro realloc\n");
+	// 		exit(1);
+	// 	}
+	// }
 	for(; *from != '\0'; from++,to++){
 		if(*from == ' ' || *from == '-') *to = *from;
 		else *to = '_';
 	}
 	*(to++) = '\0';
+
 }
 
 char *ler_vetor(FILE *arq){
