@@ -3,10 +3,15 @@
 #include <string.h>
 #include "palavra.h"
 
-void acha_letra(char *palavra, char *forca, char letra){
-  for(; *palavra != '\0';palavra++,forca++){
-    if(*palavra == letra) *forca = letra;
-  }
+int acha_letra(char *palavra, char *forca, char letra){
+	int sim = 0;
+	for(; *palavra != '\0';palavra++,forca++){
+		if(*palavra == letra){
+			*forca = letra;
+			sim = 1;
+		}
+	}
+	return sim;
 }
 
 void zera_palavra(char *to, char *from){

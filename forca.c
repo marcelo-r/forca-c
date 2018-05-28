@@ -15,6 +15,10 @@ void add_ao_banco(struct Palavra *sword, char *filename);
 struct Palavra *fread_palavra(struct Palavra *sword,FILE *arq);
 char *palavra_aleatoria(FILE *arq,int nivel);
 
+int forca(char *word,char *empty);
+void imprime_forca(char *empty, int tamanho, int vidas,char *tentativas);
+char recebe_letra(char *tentativas);
+
 int NUM_P;
 
 int main() {
@@ -58,8 +62,9 @@ int menu(){
 }
 
 void jogar(){
-	int nivel,tamanho,cont_j,forca;
+	int nivel,tamanho,cont_j = 1, raw_pontos = 0;
 	char *word,*empty;
+	char deseja = ' ';
 	FILE *arq;
 
 	arq = fopen("wordbank","rb");
@@ -76,19 +81,121 @@ void jogar(){
 		}
 		tamanho = strlen(word);
 		empty = malloc(sizeof(char) * (tamanho + 1));
+		if(!empty){
+			printf("Erro alocacao forca\n");
+			exit(1);
+		}
 		strcpy(empty,word);
 		zera_palavra(empty,word);
-		printf("\nA palavra possui %d letras\n",tamanho);
-		printf("> %s <\n",empty);
-		// forca();
-		// do{
-		// 	// print_forca(empty,tamanho);
-		// }while(forca == 0);
-		// cont_j = 1;
-	}while(cont_j == 0);
+
+		raw_pontos = forca(word,empty) * nivel;
+		printf("Voce fez %d pontos\n", raw_pontos);
+		// pontuar();
+		do {
+			printf("Deseja continuar jogando? (s ou n) ");
+			scanf("%s",&deseja);
+			switch (deseja) {
+				case 's':
+					cont_j = 1;
+					break;
+				case 'n':
+					cont_j = 0;
+					break;
+				default:
+					printf("Opcao invalida\n");
+					deseja = ' ';
+			}
+		} while(deseja == ' ');
+
+	}while(cont_j == 1);
 
 	// free(word);
 	// free(empty);
+}
+
+char recebe_letra(char *tentativas){
+	char letra, *t;
+	int valida = 0;
+	getchar();
+	do {
+		printf("Digite uma letra: ");
+		scanf("%s", &letra);
+		if( !((letra >= 65 && letra <= 90) || (letra >= 97 && letra <= 122)) ){
+			printf("Letra invalida\n");
+			continue;
+		}
+		valida = 1;
+	}while(!valida);
+	t = strchr(tentativas,letra);
+	if(t == NULL){
+		strcat(tentativas,&letra);
+		return letra;
+	}
+	return ' ';
+}
+
+// nivel * vidas * (tentativas - erros)
+int forca(char *word,char *empty){
+	int tamanho = strlen(word), vidas = 6, numtent = 0, erros = 0, fim = 0;
+	char *tentativas;
+	char letra;
+	tentativas = malloc(sizeof(char) * 27);
+	strcpy(tentativas,"");
+	if(!tentativas){
+		printf("Erro alocacao tentativas\n");
+		exit(1);
+	}
+	do {
+		imprime_forca(empty,tamanho,vidas,tentativas);
+		letra = recebe_letra(tentativas);
+		if( letra == ' '){
+			printf("\nLetra já tentada\n");
+			continue;
+		}
+		numtent++;
+		if(acha_letra(word,empty,letra) == 0){
+			vidas--;
+			erros++;
+		}
+		if(vidas == 0){
+			printf("\n--- YOU LOST ---\n");
+			fim = 1;
+		}
+		if(strcmp(word,empty) == 0){
+			printf("\n+++ YOU WIN +++\n");
+			fim = 1;
+		}
+	} while(!fim);
+
+	return (vidas * (numtent - erros));
+}
+
+void imprime_forca(char *empty, int tamanho, int vidas,char *tentativas){
+	// char boneco[12] = "";
+	printf("\n===========\nA palavra possui %d letras\n",tamanho);
+	printf("\n>  %s  <\n",empty);
+	printf("\nVidas: %d\n", vidas);
+	printf("Tentadas: %s\n", tentativas);
+	// printf("__\n  |\n");
+	// switch (vidas) {
+	// 	case 5:
+	// 		strcat(boneco,"  o");
+	// 		// printf("o\n");
+	// 	case 4:
+	// 		strcat(boneco,"")
+	// 		// printf("o\n-\n");
+	// 	case 3:
+	// 		// printf(" -");
+	// 	case 2:
+	// 		// printf("\n |");
+	// 	case 1:
+	// 		// printf("\n/");
+	// 	case 0:
+	// 		// printf(" \\");
+	// 		break;
+	// 	default:
+	// 		// printf("\n");
+	// }
 }
 
 int selecionar_nivel(){
@@ -208,9 +315,9 @@ char *palavra_aleatoria(FILE *arq,int nivel){
 		do{
 			random = rand() % (NUM_P+1);
 		}while(random == 0);
-		printf("\n++\nNUM_P = %d\nrandom = %d\n\n",NUM_P,random);
+		// printf("\n++\nNUM_P = %d\nrandom = %d\n\n",NUM_P,random);
 		for(i = 1; i <= random; i++){
-			printf("%d mizera\n",i);
+			// printf("%d mizera\n",i);
 			sword = fread_palavra(sword,arq);
 		}
 		if(sword->dificuldade == nivel){
