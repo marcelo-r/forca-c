@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "vetor.h"
 #include "palavra.h"
+#include "jogador.h"
 
-#define FILENAME "wordbank"
+#define WORDBANK "wordbank"
 
 #ifdef _WIN32
 	const char os = 'w';
@@ -19,19 +21,21 @@ int menu();
 void jogar();
 int selecionar_nivel();
 void menu_cadastrar();
+void menu_rankear(int nivel,int pontos);
 
 int forca(char *word,char *empty);
 void imprime_forca(char *empty, int tamanho, int vidas,char *tentativas);
 char recebe_letra(char *tentativas);
+int rankear(struct Jogador *player,char *filename);
 
 char check_letra(char *letra);
 int str_len(char *word);
 
 void cleanit();
 
+const char *rank = "rank";
 
 int main() {
-	printf("%c\n",os);
 	srand( time(NULL) );
 	NUM_P = 0;
  	for(;;){
@@ -41,13 +45,21 @@ int main() {
 }
 
 void cleanit(){
-	if(os == 'l') system("clear && clear");
-	else system("cls");
+	if(os == 'l') system("clear");
+	else if (os == 'w') system("cls");
+	else printf("\n-\n");
+}
+
+int str_len(char *word){
+	int len = 0;
+	if(!word) return 0;
+	for(; *word != '\0'; word++) if(*word != ' ') len++;
+	return len;
 }
 
 int menu(){
 	int opcao = 0;
-	while(1){
+	do{
 		cleanit();
 		printf("1 - Jogar\n2 - Ver Ranking\n3 - Cadastrar Palavras\n4 - Creditos\n5 - Sair\n > ");
 		scanf("%d",&opcao);
@@ -65,26 +77,31 @@ int menu(){
 			case 4:
 				// creditos();
 				printf("\nBy Tora Balde\n\n");
+				getchar();
+				getchar();
 				break;
 			case 5:
 				printf("\n!\n");
-				return 0;
+				break;
 			default:
 				printf("\nOpcao invalida\n");
+				getchar();
+				getchar();
+				break;
 		}
-	}
-	return 1;
+	}while(opcao != 5);
+	return 0;
 }
 
 void jogar(){
-	int nivel,tamanho,cont_j = 1, raw_pontos = 0;
+	int nivel,tamanho,cont_j = 1, raw_pontos = 0, pontos = 0;
 	char *word,*empty;
 	char deseja = ' ';
 	time_t start,end;
-	double tempo = 0.0, pontos = 0.0;
+	double tempo = 0.0;
 	FILE *arq;
 
-	arq = fopen("wordbank","rb");
+	arq = fopen(WORDBANK,"rb");
 	if (!arq){
 		printf("Erro ao abrir arquivo\n");
 		exit(1);
@@ -113,12 +130,19 @@ void jogar(){
 		raw_pontos == 0 ? printf("\n--- VOCE PERDEU ---\n") : printf("\n+++ VOCE VENCEU +++\n");
 
 		tempo = difftime(end,start);
-		pontos = (raw_pontos / tempo) * 100.0;
+		pontos = (int) ( (raw_pontos / tempo) * 100.0 );
 
 		printf("A palavra era: %s\n", word);
-		printf("Voce fez %.0f pontos\n", pontos);
-		printf("Tempo gasto %.0f segundos\n", tempo);
-		// pontuar();
+		printf("Tempo gasto: %.0f segundos\n", tempo);
+		printf("Voce fez %d pontos\n", pontos);
+
+		free(word);
+		free(empty);
+
+		// if(raw_pontos > 0){
+		// 	printf("rankeando\n");
+		// 	menu_rankear(nivel,pontos);
+		// }
 		do {
 			printf("Deseja continuar jogando? (s ou n) ");
 			scanf("%s",&deseja);
@@ -197,6 +221,7 @@ int forca(char *word,char *empty){
 		// 	fim = 1;
 		// }
 		if(strcmp(word,empty) == 0 || vidas == 0){
+			cleanit();
 			imprime_forca(empty,tamanho,vidas,tentativas);
 			fim = 1;
 		}
@@ -206,31 +231,10 @@ int forca(char *word,char *empty){
 }
 
 void imprime_forca(char *empty, int tamanho, int vidas,char *tentativas){
-	// char boneco[12] = "";
-	printf("\n===========\nA palavra possui %d letras\n",tamanho);
+	printf("A palavra possui %d letras\n",tamanho);
 	printf("\n>  %s  <\n",empty);
 	printf("\nVidas: %d\n", vidas);
 	printf("Tentadas: %s\n", tentativas);
-	// printf("__\n  |\n");
-	// switch (vidas) {
-	// 	case 5:
-	// 		strcat(boneco,"  o");
-	// 		// printf("o\n");
-	// 	case 4:
-	// 		strcat(boneco,"")
-	// 		// printf("o\n-\n");
-	// 	case 3:
-	// 		// printf(" -");
-	// 	case 2:
-	// 		// printf("\n |");
-	// 	case 1:
-	// 		// printf("\n/");
-	// 	case 0:
-	// 		// printf(" \\");
-	// 		break;
-	// 	default:
-	// 		// printf("\n");
-	// }
 }
 
 int selecionar_nivel(){
@@ -239,7 +243,7 @@ int selecionar_nivel(){
 		printf("Selecione a dificuldade:\n1 - Facil\n2 - Medio\n3 - Dificil\n > ");
 		scanf("%d",&nivel);
 		if(nivel != 1 && nivel != 2 && nivel != 3){
-			printf("Opcao invalida");
+			printf("Opcao invalida\n");
 			nivel = 0;
 		}
 	}while(nivel == 0);
@@ -258,14 +262,14 @@ void menu_cadastrar(){
 		// scanf("%d", &nivel);
 		nivel = selecionar_nivel();
 		sword = criar_palavra(sword,word,nivel);
-		if(!fwrite_palavra(sword,"wordbank")){
+		if(fwrite_palavra(sword,WORDBANK) == EOF){
 			printf("Erro ao cadastrar, tente novamente.\n");
 			continue;
 		}
 		printf("Palavra cadastrada com sucesso.\n");
 		while(1){
 			char op;
-			printf("\nCadastrar outra palavra (s ou n)? ");
+			printf("Cadastrar outra palavra (s ou n)? ");
 			scanf("%s",&op);
 			if(op == 'n'){
 				cont = 0;
@@ -277,9 +281,56 @@ void menu_cadastrar(){
 	}while(cont);
 }
 
-int str_len(char *word){
-	int len = 0;
-	if(!word) return 0;
-	for(; *word != '\0'; word++) if(*word != ' ') len++;
-	return len;
+void menu_rankear(int nivel,int pontos){
+	char *name;
+	char *filename;
+	struct Jogador *player;
+	player = malloc(sizeof(struct Jogador));
+	memset(player,0,sizeof(struct Jogador));
+	filename = malloc(sizeof(char)*6);
+	switch (nivel) {
+		case 1:
+			strcpy(filename,"rank1");
+			break;
+		case 2:
+			strcpy(filename,"rank2");
+			break;
+		case 3:
+			strcpy(filename,"rank3");
+			break;
+		default:
+			printf("Erro de ranking, nivel invalido\n");
+			exit(1);
+			break;
+	}
+	printf("Digite seu nome: ");
+	name = ler_vetor(stdin);
+	player = criar_jogador(player,name,pontos);
+	printf("your name = %s\nyour points = %d\n", player->nome,player->pontos);
+
+	if( fwrite_jogador(player, filename,"ab") == EOF){
+		printf("Erro ao adicionar jogador ao ranking\n");
+		exit(1);
+	}
+
+	if( !rankear(player,filename) ){
+
+	}
+	getchar();
+
+	getchar();
+
+}
+
+int rankear(struct Jogador *player,char *filename){
+	struct Jogador **arr;
+	FILE *arq;
+	arq = fopen(filename,"rb");
+	if(!arq){
+		printf("Erro ao abrir arquivo ranking\n");
+		exit(1);
+	}
+	arr = fread_rank(filename);
+	arr = add_jogador(player,arr);
+	return 1;
 }

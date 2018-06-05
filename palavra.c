@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "palavra.h"
+#include "vetor.h"
 
 int acha_letra(char *palavra, char *forca, char letra){
 	int sim = 0;
@@ -30,30 +31,8 @@ void zera_palavra(char *to, char *from){
 
 }
 
-char *ler_vetor(FILE *arq){
-	char *str;
-	unsigned int tamanho = 16, i = 0;
-	int c;
-	str = realloc(NULL,sizeof(char) * tamanho);
-	if(!str){
-		printf("\nErro de alocacao\n");
-		return NULL;
-	}
-	if(arq == stdin) getchar();
-	while (( c = fgetc(arq) ) != EOF && c != '\n' && c != '\0'){
-		str[i++] = c;
-		if(i == tamanho){
-			tamanho += i;
-			str = realloc(str,sizeof(char) * tamanho);
-			if(!str) printf("Erro realloc\n");
-		}
-	}
-	str[i] = '\0';
-	return realloc( str, sizeof(char)*(strlen(str)+1) );
-}
-
 struct Palavra *criar_palavra(struct Palavra *sword, char *word,int nivel){
-	sword = malloc( sizeof(*sword) + ( sizeof(char) * strlen(word) ) );
+	sword = malloc( sizeof(*sword) + ( sizeof(char) * (strlen(word) + 1) ) );
 	if(!sword){
 		printf("Erro de alocacao\n");
 		exit(1);
@@ -67,9 +46,9 @@ int fwrite_palavra(struct Palavra *sword, char *filename){
 	FILE *arq;
 	int len = 0;
 	int n = 0;
-	arq = fopen(filename,"r+");
+	arq = fopen(filename,"rb+");
 	if (!arq){
-		arq = fopen(filename,"w");
+		arq = fopen(filename,"wb");
 	}
 	fread(&n,sizeof(int),1,arq) != 1 ? n = 1 : n++;
 	rewind(arq);
@@ -82,7 +61,7 @@ int fwrite_palavra(struct Palavra *sword, char *filename){
 	}
 	arq = fopen(filename,"ab");
 	if (!arq){
-		printf("Erro ao abrir arquivo em modo anexo\n");
+		printf("Erro ao abrir arquivo em modo append\n");
 		exit(1);
 	}
 	if( fwrite(&(sword->dificuldade), sizeof(int), 1, arq) != 1 ){
