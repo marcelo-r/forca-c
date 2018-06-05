@@ -139,10 +139,10 @@ void jogar(){
 		free(word);
 		free(empty);
 
-		// if(raw_pontos > 0){
-		// 	printf("rankeando\n");
-		// 	menu_rankear(nivel,pontos);
-		// }
+		if(raw_pontos > 0){
+			printf("rankeando\n");
+			menu_rankear(nivel,pontos);
+		}
 		do {
 			printf("Deseja continuar jogando? (s ou n) ");
 			scanf("%s",&deseja);
@@ -216,10 +216,6 @@ int forca(char *word,char *empty){
 			vidas--;
 			erros++;
 		}
-		// if(vidas == 0){
-		// 	printf("\n--- YOU LOST ---\n");
-		// 	fim = 1;
-		// }
 		if(strcmp(word,empty) == 0 || vidas == 0){
 			cleanit();
 			imprime_forca(empty,tamanho,vidas,tentativas);

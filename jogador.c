@@ -105,6 +105,7 @@ struct Jogador **fread_rank(char *filename){
 	printf("SAIU\n");
 	arr = realloc(arr,sizeof(arr) + sizeof(struct Jogador *));
 	(*(arr + i + 1))->pontos = 0;
+	printf("RETURNING\n");
 	strcpy((*(arr + i + 1))->nome,"");
 	free(player);
 	return arr;
