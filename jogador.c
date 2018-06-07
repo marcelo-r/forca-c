@@ -84,10 +84,8 @@ struct Jogador **fread_rank(char *filename){
 		exit(1);
 	}
 	while( (player = fread_jogador(player,arq)) != NULL){
-		printf("------------------------\n");
-		printf("nome = %s\npontos = %d\n",player->nome,player->pontos );
 		// player = fread_jogador(player,arq);
-		arr = realloc(arr,sizeof(arr) + sizeof(struct Jogador *));
+		arr = realloc(arr,(sizeof(struct Jogador *) * i ) + sizeof(struct Jogador *));
 		if(!arr){
 			printf("Erro realloc fread_rank\n");
 			exit(1);
@@ -99,15 +97,19 @@ struct Jogador **fread_rank(char *filename){
 		}
 		(*(arr + i))->pontos = player->pontos;
 		strcpy((*(arr + i))->nome,player->nome);
+		printf("------------------------\n");
+		printf("nome = %s\npontos = %d\n",(*(arr + i))->nome,(*(arr + i))->pontos );
 		i++;
 		free(player);
 	}
-	printf("SAIU\n");
-	arr = realloc(arr,sizeof(arr) + sizeof(struct Jogador *));
-	(*(arr + i + 1))->pontos = 0;
-	printf("RETURNING\n");
-	strcpy((*(arr + i + 1))->nome,"");
+	printf("SAIU %d\n",i);
+	i++;
+	arr = realloc(arr,sizeof(struct Jogador *) * i );
+	*(arr + i) = malloc(sizeof(struct Jogador));
+	(*(arr + i))->pontos = 0;
+	strcpy((*(arr + i))->nome,"");
 	free(player);
+	NUM_J = i;
 	return arr;
 }
 
@@ -130,19 +132,27 @@ struct Jogador **sort_rank(struct Jogador **arr) {
 
 struct Jogador **add_jogador(struct Jogador *player,struct Jogador **arr){
 	struct Jogador **cpy = arr;
-	int len = 0;
+	int len = NUM_J;
 	// cpy = arr;
-	for(; (*cpy)->pontos != 0;cpy++){
-		if( strcmp((*cpy)->nome,player->nome) ){
-			(*cpy)->pontos = player->pontos;
-			return arr;
-		}
-		len++;
-	}
+	// for(; (*cpy)->pontos != 0;cpy++){
+	// 	if( strcmp((*cpy)->nome,player->nome) ){
+	// 		(*cpy)->pontos = player->pontos;
+	// 		return arr;
+	// 	}
+	// 	len++;
+	// }
 	len++;
-	arr = realloc(arr,sizeof(arr) + sizeof(struct Jogador *));
-	*(arr + len + 1) = malloc(sizeof(player));
-	(*(arr + len + 1))->pontos = player->pontos;
-	strcpy((*(arr + len + 1))->nome,player->nome);
+	printf("NUM_J = %d\n",NUM_J);
+	arr = realloc(arr,sizeof(struct Jogador *) * len);
+	*(arr + len) = malloc(sizeof(struct Jogador));
+	(*(arr + len))->pontos = player->pontos;
+	strcpy((*(arr + len))->nome,player->nome);
+	printf("IHUU\n");
+
+	NUM_J++;
 	return arr;
+}
+
+int jogadorcmp(const struct Jogador *a, const struct Jogador *b){
+	return ( b->pontos - a->pontos);
 }

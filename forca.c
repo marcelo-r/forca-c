@@ -327,6 +327,7 @@ int rankear(struct Jogador *player,char *filename){
 		exit(1);
 	}
 	arr = fread_rank(filename);
+	printf("MIZEEEEEEEEEEERA\n");
 	arr = add_jogador(player,arr);
 	return 1;
 }

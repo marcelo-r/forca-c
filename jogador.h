@@ -1,6 +1,8 @@
 #ifndef JOGADOR_H_
 #define JOGADOR_H_
 
+int NUM_J;
+
 struct Jogador{
 	int pontos;
 	char nome[];
