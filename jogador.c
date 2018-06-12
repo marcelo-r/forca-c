@@ -64,11 +64,12 @@ struct Jogador *fread_jogador(FILE *arq){
 	player = malloc(sizeof(struct Jogador));
 	// algumas vezes, ao tentar ver o ranking, ocorre um erro aqui no fread
 	if( fread(&(player->pontos),sizeof(int),1,arq) != 1 ){
+		free(player);
 		return NULL;
 		// exit(1);
 	}
 	name = ler_vetor(arq);
-	player = realloc(player, sizeof(player) + sizeof(char) * (strlen(name) + 1) );
+	player = realloc(player, sizeof(struct Jogador) + sizeof(char) * (strlen(name) + 1) );
 	strcpy(player->nome,name);
 	free(name);
 	return player;
@@ -77,7 +78,7 @@ struct Jogador *fread_jogador(FILE *arq){
 struct Jogador **fread_rank(FILE *arq){
 	struct Jogador **arr;
 	struct Jogador *player;
-	int i = 0;
+	int i = 0,len =0;
 	// FILE *arq;
 	// arq = fopen(filename,"rb");
 	arr = malloc(sizeof(struct Jogador *));
@@ -93,24 +94,26 @@ struct Jogador **fread_rank(FILE *arq){
 			printf("Erro realloc fread_rank\n");
 			exit(1);
 		}
-		*(arr + i) = malloc(sizeof(struct Jogador *));
+		len = strlen(player->nome) + 1;
+		*(arr + i) = malloc(sizeof(struct Jogador) + len * sizeof(char));
 		if(!(*(arr + i))){
 			printf("Erro malloc fread_rank");
 			exit(1);
 		}
 		(*(arr + i))->pontos = player->pontos;
 		strcpy((*(arr + i))->nome,player->nome);
-		// printf("------------------------\n");
-		// printf("nome = %s\npontos = %d\n",(*(arr + i))->nome,(*(arr + i))->pontos );
+		printf("------------------------\n");
+		printf("nome = %s\npontos = %d\n",(*(arr + i))->nome,(*(arr + i))->pontos );
 		i++;
 		free(player);
 	}
-	// printf("SAIU %d\n",i);
-	i++;
-	arr = realloc(arr,sizeof(struct Jogador *) * i );
-	*(arr + i) = malloc(sizeof(struct Jogador));
-	(*(arr + i))->pontos = 0;
-	strcpy((*(arr + i))->nome," ");
+	printf("SAIU %d\n",i);
+	// i+=1;
+	printf("size Jogador = %d\n",sizeof(struct Jogador *));
+	// arr = realloc(arr,(sizeof(struct Jogador *) * i ) + sizeof(struct Jogador *));
+	// *(arr + i) = malloc(sizeof(struct Jogador) + 2 * sizeof(char));
+	// (*(arr + i))->pontos = 0;
+	// strcpy((*(arr + i))->nome," ");
 	free(player);
 	// fclose(arq);
 	NUM_J = i;
@@ -119,7 +122,7 @@ struct Jogador **fread_rank(FILE *arq){
 
 void sort_rank(struct Jogador **arr) {
 	struct Jogador *aux;
-	int len = NUM_J-1, i = 0, j = 0;
+	int len = NUM_J, i = 0, j = 0;
 	for(i = 0; i < len; i++){
 		// printf("i-%d\n",i);
 		for(j = 0; j < len-1; j++){

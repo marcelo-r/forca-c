@@ -76,7 +76,8 @@ int fwrite_palavra(struct Palavra *sword, char *filename){
 	return fclose(arq);
 }
 
-struct Palavra *fread_palavra(struct Palavra *sword,FILE *arq){
+struct Palavra *fread_palavra(FILE *arq){
+	struct Palavra *sword;
 	char *word;
 	sword = malloc(sizeof(struct Palavra));
 	if( fread(&(sword->dificuldade),sizeof(int),1,arq) != 1 ){
@@ -84,7 +85,7 @@ struct Palavra *fread_palavra(struct Palavra *sword,FILE *arq){
 		exit(1);
 	}
 	word = ler_vetor(arq);
-	sword = realloc(sword,sizeof(sword) + sizeof(char) * (strlen(word) + 1) );
+	sword = realloc(sword,sizeof(struct Palavra) + sizeof(char) * (strlen(word) + 1) );
 	strcpy(sword->palavra,word);
 	free(word);
 	return sword;
@@ -122,15 +123,18 @@ char *palavra_aleatoria(FILE *arq,int nivel){
 		// printf("\n++\nNUM_P = %d\nrandom = %d\n\n",NUM_P,random);
 		for(i = 1; i <= random; i++){
 			// printf("%d mizera\n",i);
-			sword = fread_palavra(sword,arq);
+			sword = fread_palavra(arq);
+			if(i < random){
+				free(sword);
+			}
 		}
 		if(sword->dificuldade == nivel){
 			flag_nivel += 1;
-			// break;
+			break;
 		}else{
 			int j = NUM_P - random;
 			for(i = 1; i <= j; i++){
-				sword = fread_palavra(sword,arq);
+				sword = fread_palavra(arq);
 				if(sword->dificuldade == nivel){
 					flag_nivel += 1;
 					break;
@@ -145,6 +149,6 @@ char *palavra_aleatoria(FILE *arq,int nivel){
 
 	word = malloc( sizeof(char) * (strlen(sword->palavra) + 1));
 	strcpy(word,sword->palavra);
-
+	free(sword);
 	return word;
 }

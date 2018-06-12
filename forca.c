@@ -53,9 +53,10 @@ void cleanit(int aviso){
 		getchar();
 		getchar();
 	}
-	if(os == 'l') system("clear");
-	else if (os == 'w') system("cls");
-	else printf("\n-\n");
+	// if(os == 'l') system("clear");
+	// else if (os == 'w') system("cls");
+	// else printf("\n-\n");
+	printf("\n.-.-.-.\n");
 }
 
 int str_len(char *word){
@@ -230,7 +231,7 @@ int forca(char *word,char *empty){
 			fim = 1;
 		}
 	} while(!fim);
-
+	free(tentativas);
 	return (vidas * (numtent - erros));
 }
 
@@ -267,9 +268,11 @@ void menu_cadastrar(){
 		// scanf("%d", &nivel);
 		nivel = selecionar_nivel();
 		sword = criar_palavra(sword,word,nivel);
+		free(word);
 		if(fwrite_palavra(sword,WORDBANK) == EOF){
 			printf("Erro ao cadastrar, tente novamente.\n");
 			aviso = 1;
+			free(sword);
 			continue;
 		}
 		printf("Palavra cadastrada com sucesso.\n");
@@ -277,14 +280,27 @@ void menu_cadastrar(){
 			char op;
 			printf("Cadastrar outra palavra (s ou n)? ");
 			scanf("%s",&op);
-			if(op == 'n'){
-				cont = 0;
-				break;
-			}else if(op == 's'){
-				aviso = 0;
-				break;
-			}else printf("\nOpcao invalida\n");
+			switch (op) {
+				case 'n':
+					cont = 0;
+					break;
+				case 's':
+					aviso = 0;
+					break;
+				default:
+					printf("\nOpcao invalida\n");
+					continue;
+			}
+			break;
+			// if(op == 'n'){
+			// 	cont = 0;
+			// 	break;
+			// }else if(op == 's'){
+			// 	aviso = 0;
+			// 	break;
+			// }else printf("\nOpcao invalida\n");
 		}
+		free(sword);
 	}while(cont);
 }
 
@@ -327,6 +343,7 @@ void menu_add_rank(int nivel,int pontos){
 	}
 	printf("Para ver sua posicao no rank acesse a opcao de ver o rank.\n");
 	free(player);
+	free(filename);
 }
 
 void menu_show_rank(){
@@ -340,6 +357,7 @@ void menu_show_rank(){
 		printf("Nenhum jogador cadastrado no ranking desse nivel\n");
 	}
 	cleanit(1);
+	free(filename);
 }
 
 int rankear(char *filename,int nivel){
@@ -356,12 +374,13 @@ int rankear(char *filename,int nivel){
 	arr = fread_rank(arq);
 	sort_rank(arr);
 	printf("RANKING NIVEL %d:\n # Pontos  Nome\n",nivel);
-	for(; i < NUM_J-1; i++){
+	for(; i < NUM_J; i++){
 		printf("%2d- %4d  %s\n",i+1,arr[i]->pontos,arr[i]->nome);
 		free(arr[i]);
 	}
+	// free(arr[i+1]);
 	// arr = realloc(arr,sizeof(struct Jogador *));
-	// free(arr);
+	free(arr);
 	// printf("Aperte qualquer tecla para voltar\n");
 	// getchar();
 	// getchar();

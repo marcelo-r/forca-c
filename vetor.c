@@ -5,9 +5,9 @@
 
 char *ler_vetor(FILE *arq){
 	char *str;
-	unsigned int tamanho = 16, i = 0;
+	unsigned int tamanho = 8, i = 0;
 	int c;
-	str = realloc(NULL,sizeof(char) * tamanho);
+	str = malloc(sizeof(char) * tamanho);
 	if(!str){
 		printf("\nErro de alocacao\n");
 		return NULL;
