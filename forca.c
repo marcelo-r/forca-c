@@ -53,10 +53,10 @@ void cleanit(int aviso){
 		getchar();
 		getchar();
 	}
-	// if(os == 'l') system("clear");
-	// else if (os == 'w') system("cls");
-	// else printf("\n-\n");
-	printf("\n.-.-.-.\n");
+	if(os == 'l') system("clear");
+	else if (os == 'w') system("cls");
+	else printf("\n-\n");
+	// printf("\n.-.-.-.\n");
 }
 
 int str_len(char *word){
