@@ -139,6 +139,7 @@ char *palavra_aleatoria(FILE *arq,int nivel){
 					flag_nivel += 1;
 					break;
 				}
+				free(sword);
 			}
 		}
 		if (++limite > 10){

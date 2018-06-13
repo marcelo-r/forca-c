@@ -53,9 +53,9 @@ void cleanit(int aviso){
 		getchar();
 		getchar();
 	}
-	if(os == 'l') system("clear");
-	else if (os == 'w') system("cls");
-	else printf("\n-\n");
+	// if(os == 'l') system("clear");
+	// else if (os == 'w') system("cls");
+	// else printf("\n-\n");
 	// printf("\n.-.-.-.\n");
 }
 
@@ -343,6 +343,7 @@ void menu_add_rank(int nivel,int pontos){
 	}
 	printf("Para ver sua posicao no rank acesse a opcao de ver o rank.\n");
 	free(player);
+	free(name);
 	free(filename);
 }
 
