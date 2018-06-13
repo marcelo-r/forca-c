@@ -143,7 +143,7 @@ char *palavra_aleatoria(FILE *arq,int nivel){
 			}
 		}
 		if (++limite > 10){
-			free(sword);
+			// free(sword);
 			return NULL;
 		}
 	}while(flag_nivel == 0);
