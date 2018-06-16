@@ -4,38 +4,6 @@
 #include "palavra.h"
 #include "vetor.h"
 
-void zera_palavra(char *to, char *from){
-	for(; *from != '\0'; from++,to++){
-		if(*from == ' ' || *from == '-') *to = *from;
-		else *to = '_';
-	}
-	*(to++) = '\0';
-}
-
-int acha_letra(char *palavra, char *forca, char letra){
-	int sim = 0;
-	for(; *palavra != '\0';palavra++,forca++){
-		if(*palavra == letra){
-			*forca = letra;
-			sim = 1;
-		}
-	}
-	return sim;
-}
-
-char check_letra(char *letra){
-	if(!letra) return '\0';
-	if( !((*letra >= 65 && *letra <= 90) || (*letra >= 97 && *letra <= 122) ) ) return '\0';
-	return *letra;
-}
-
-int str_len(char *word){
-	int len = 0;
-	if(!word) return 0;
-	for(; *word != '\0'; word++) if(*word != ' ') len++;
-	return len;
-}
-
 struct Palavra *criar_palavra(struct Palavra *sword, char *word,int nivel){
 	sword = malloc( sizeof(*sword) + ( sizeof(char) * (strlen(word) + 1) ) );
 	if(!sword){
@@ -94,64 +62,4 @@ struct Palavra *fread_palavra(FILE *arq){
 	strcpy(sword->palavra,word);
 	free(word);
 	return sword;
-}
-
-char *palavra_aleatoria(FILE *arq,int nivel){
-	int qnt = 0, random = 0, i = 0, flag_nivel = 0,limite = 0;
-	struct Palavra *sword;
-	char *word;
-	if (!arq){
-		printf("Erro arquivo\n");
-		exit(1);
-	}
-	rewind(arq);
-	if( fread(&NUM_P,sizeof(int),1,arq) != 1){
-		printf("Erro leitura NUM_P\n");
-		exit(1);
-	}
-	/*
-		rand() % (max_number + 1 - minimum_number) + minimum_number
-				   NUM_P	 + 1 -		1		   +		1
-	*/
-
-	/*
-	sorteia uma palavra, se ela nao possuir o nivel desejado,
-	anda até achar uma que tenha o nível,
-	se atingir EOF e nao achar, sorteia novamente
-	*/
-	do{
-		rewind(arq);
-		fseek(arq,sizeof(int),SEEK_SET);
-		do{
-			random = rand() % (NUM_P+1);
-		}while(random == 0);
-		for(i = 1; i <= random; i++){
-			sword = fread_palavra(arq);
-			if(i < random){
-				free(sword);
-			}
-		}
-		if(sword->dificuldade == nivel){
-			flag_nivel += 1;
-			break;
-		}else{
-			int j = NUM_P - random;
-			for(i = 1; i <= j; i++){
-				sword = fread_palavra(arq);
-				if(sword->dificuldade == nivel){
-					flag_nivel += 1;
-					break;
-				}
-				free(sword);
-			}
-		}
-		if (++limite > 10){
-			return NULL;
-		}
-	}while(flag_nivel == 0);
-
-	word = malloc( sizeof(char) * (strlen(sword->palavra) + 1));
-	strcpy(word,sword->palavra);
-	free(sword);
-	return word;
 }

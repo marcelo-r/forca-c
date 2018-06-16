@@ -11,11 +11,6 @@ struct Jogador{
 struct Jogador *criar_jogador(char *,int);
 
 struct Jogador *fread_jogador(FILE *);
-int fwrite_jogador(struct Jogador *, char *,char *);
-
-int fwrite_rank(struct Jogador, int);
-struct Jogador **fread_rank(FILE *);
-
-void sort_rank(struct Jogador **);
+void fwrite_jogador(FILE *,struct Jogador *);
 
 #endif
