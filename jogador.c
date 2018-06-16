@@ -21,11 +21,6 @@ int fwrite_jogador(struct Jogador *player, char *filename,char *modo){
 	FILE *arq;
 	int len = 0;
 	char c;
-	// arq = fopen(filename,"rb");
-	// if(!arq){
-	// 	arq = fopen(filename,"wb");
-	// 	rewind(arq);
-	// }
 	arq = fopen(filename,modo);
 
 	if(!arq){
@@ -42,15 +37,6 @@ int fwrite_jogador(struct Jogador *player, char *filename,char *modo){
 		printf("Erro ao escrever nome do jogador\n");
 		exit(1);
 	}
-	// fclose(arq);
-	// arq = fopen(filename,"rb");
-	// c = fgetc(arq);
-	// while (c != EOF)
-    // {
-    //     printf ("%c", c);
-    //     c = fgetc(arq);
-    // }
-	// printf("\n");
 	return fclose(arq);
 }
 
@@ -62,11 +48,9 @@ struct Jogador *fread_jogador(FILE *arq){
 		exit(1);
 	}
 	player = malloc(sizeof(struct Jogador));
-	// algumas vezes, ao tentar ver o ranking, ocorre um erro aqui no fread
 	if( fread(&(player->pontos),sizeof(int),1,arq) != 1 ){
 		free(player);
 		return NULL;
-		// exit(1);
 	}
 	name = ler_vetor(arq);
 	player = realloc(player, sizeof(struct Jogador) + sizeof(char) * (strlen(name) + 1) );
@@ -79,16 +63,12 @@ struct Jogador **fread_rank(FILE *arq){
 	struct Jogador **arr;
 	struct Jogador *player;
 	int i = 0,len =0;
-	// FILE *arq;
-	// arq = fopen(filename,"rb");
 	arr = malloc(sizeof(struct Jogador *));
 	if(!arq){
 		printf("Erro arquivo fread_rank");
 		exit(1);
 	}
 	while( (player = fread_jogador(arq)) != NULL){
-		// player = fread_jogador(player,arq);
-		// printf("\n\n?????????????????\n\n");
 		arr = realloc(arr,(sizeof(struct Jogador *) * i ) + sizeof(struct Jogador *));
 		if(!arr){
 			printf("Erro realloc fread_rank\n");
@@ -102,20 +82,10 @@ struct Jogador **fread_rank(FILE *arq){
 		}
 		(*(arr + i))->pontos = player->pontos;
 		strcpy((*(arr + i))->nome,player->nome);
-		printf("------------------------\n");
-		printf("nome = %s\npontos = %d\n",(*(arr + i))->nome,(*(arr + i))->pontos );
 		i++;
 		free(player);
 	}
-	printf("SAIU %d\n",i);
-	// i+=1;
-	printf("size Jogador = %d\n",sizeof(struct Jogador *));
-	// arr = realloc(arr,(sizeof(struct Jogador *) * i ) + sizeof(struct Jogador *));
-	// *(arr + i) = malloc(sizeof(struct Jogador) + 2 * sizeof(char));
-	// (*(arr + i))->pontos = 0;
-	// strcpy((*(arr + i))->nome," ");
 	free(player);
-	// fclose(arq);
 	NUM_J = i;
 	return arr;
 }
@@ -124,11 +94,8 @@ void sort_rank(struct Jogador **arr) {
 	struct Jogador *aux;
 	int len = NUM_J, i = 0, j = 0;
 	for(i = 0; i < len; i++){
-		// printf("i-%d\n",i);
 		for(j = 0; j < len-1; j++){
-			// printf("j-%d ",j);
 			if( arr[j]->pontos < arr[j+1]->pontos ){
-				// printf("+++ \n");
 				aux = arr[j+1];
 				arr[j+1] = arr[j];
 				arr[j] = aux;

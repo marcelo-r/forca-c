@@ -10,6 +10,8 @@ struct Palavra{
 
 void zera_palavra(char *to, char *from);
 int acha_letra(char *palavra, char *forca, char letra);
+char check_letra(char *letra);
+int str_len(char *word);
 
 struct Palavra *criar_palavra(struct Palavra *sword, char *word,int nivel);
 

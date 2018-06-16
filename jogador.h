@@ -8,14 +8,14 @@ struct Jogador{
 	char nome[];
 };
 
-struct Jogador *criar_jogador(char *nome,int pontos);
+struct Jogador *criar_jogador(char *,int);
 
-struct Jogador *fread_jogador(FILE *arq);
-int fwrite_jogador(struct Jogador *player, char *filename,char *modo);
+struct Jogador *fread_jogador(FILE *);
+int fwrite_jogador(struct Jogador *, char *,char *);
 
-int fwrite_rank(struct Jogador atual, int nivel);
-struct Jogador **fread_rank(FILE *arq);
+int fwrite_rank(struct Jogador, int);
+struct Jogador **fread_rank(FILE *);
 
-void sort_rank(struct Jogador **arr);
+void sort_rank(struct Jogador **);
 
 #endif

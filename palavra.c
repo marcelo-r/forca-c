@@ -4,6 +4,14 @@
 #include "palavra.h"
 #include "vetor.h"
 
+void zera_palavra(char *to, char *from){
+	for(; *from != '\0'; from++,to++){
+		if(*from == ' ' || *from == '-') *to = *from;
+		else *to = '_';
+	}
+	*(to++) = '\0';
+}
+
 int acha_letra(char *palavra, char *forca, char letra){
 	int sim = 0;
 	for(; *palavra != '\0';palavra++,forca++){
@@ -15,20 +23,17 @@ int acha_letra(char *palavra, char *forca, char letra){
 	return sim;
 }
 
-void zera_palavra(char *to, char *from){
-	// if(strlen(from) != strlen(to)){
-	// 	to = realloc(to, sizeof(char) * (strlen(from) + 1) );
-	// 	if(!to){
-	// 		printf("Erro realloc\n");
-	// 		exit(1);
-	// 	}
-	// }
-	for(; *from != '\0'; from++,to++){
-		if(*from == ' ' || *from == '-') *to = *from;
-		else *to = '_';
-	}
-	*(to++) = '\0';
+char check_letra(char *letra){
+	if(!letra) return '\0';
+	if( !((*letra >= 65 && *letra <= 90) || (*letra >= 97 && *letra <= 122) ) ) return '\0';
+	return *letra;
+}
 
+int str_len(char *word){
+	int len = 0;
+	if(!word) return 0;
+	for(; *word != '\0'; word++) if(*word != ' ') len++;
+	return len;
 }
 
 struct Palavra *criar_palavra(struct Palavra *sword, char *word,int nivel){
@@ -120,9 +125,7 @@ char *palavra_aleatoria(FILE *arq,int nivel){
 		do{
 			random = rand() % (NUM_P+1);
 		}while(random == 0);
-		// printf("\n++\nNUM_P = %d\nrandom = %d\n\n",NUM_P,random);
 		for(i = 1; i <= random; i++){
-			// printf("%d mizera\n",i);
 			sword = fread_palavra(arq);
 			if(i < random){
 				free(sword);
@@ -143,7 +146,6 @@ char *palavra_aleatoria(FILE *arq,int nivel){
 			}
 		}
 		if (++limite > 10){
-			// free(sword);
 			return NULL;
 		}
 	}while(flag_nivel == 0);

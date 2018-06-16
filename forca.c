@@ -29,9 +29,6 @@ void imprime_forca(char *empty, int tamanho, int vidas,char *tentativas);
 char recebe_letra(char *tentativas);
 int rankear(char *filename,int nivel);
 
-char check_letra(char *letra);
-int str_len(char *word);
-
 void cleanit(int aviso);
 
 char *arquivo_rank(int nivel);
@@ -53,17 +50,10 @@ void cleanit(int aviso){
 		getchar();
 		getchar();
 	}
-	// if(os == 'l') system("clear");
-	// else if (os == 'w') system("cls");
-	// else printf("\n-\n");
-	// printf("\n.-.-.-.\n");
-}
-
-int str_len(char *word){
-	int len = 0;
-	if(!word) return 0;
-	for(; *word != '\0'; word++) if(*word != ' ') len++;
-	return len;
+	if(os == 'l') system("clear");
+	else if (os == 'w') system("cls");
+	else printf("\n-\n");
+	/*printf("\n.-.-.-.\n");*/
 }
 
 int menu(){
@@ -84,7 +74,7 @@ int menu(){
 				menu_cadastrar();
 				break;
 			case 4:
-				// creditos();
+				/* creditos(); */
 				printf("\nBy Tora Balde\n\n");
 				getchar();
 				getchar();
@@ -173,12 +163,6 @@ void jogar(){
 	fclose(arq);
 }
 
-char check_letra(char *letra){
-	if(!letra) return '\0';
-	if( !((*letra >= 65 && *letra <= 90) || (*letra >= 97 && *letra <= 122) ) ) return '\0';
-	return *letra;
-}
-
 char recebe_letra(char *tentativas){
 	char letra, *t;
 	int valida = 0;
@@ -200,7 +184,6 @@ char recebe_letra(char *tentativas){
 	return ' ';
 }
 
-// nivel * vidas * (tentativas - erros)
 int forca(char *word,char *empty){
 	int tamanho = str_len(word), vidas = 6, numtent = 0, erros = 0, fim = 0, aviso = 0;
 	char *tentativas;
@@ -264,8 +247,6 @@ void menu_cadastrar(){
 		aviso = 0;
 		printf("Digite a palavra ou frase que deseja cadastrar na forca:\n> ");
 		word = ler_vetor(stdin);
-		// printf("Dificuldade: ");
-		// scanf("%d", &nivel);
 		nivel = selecionar_nivel();
 		sword = criar_palavra(sword,word,nivel);
 		free(word);
@@ -292,13 +273,6 @@ void menu_cadastrar(){
 					continue;
 			}
 			break;
-			// if(op == 'n'){
-			// 	cont = 0;
-			// 	break;
-			// }else if(op == 's'){
-			// 	aviso = 0;
-			// 	break;
-			// }else printf("\nOpcao invalida\n");
 		}
 		free(sword);
 	}while(cont);
@@ -329,13 +303,10 @@ void menu_add_rank(int nivel,int pontos){
 	char *name;
 	char *filename;
 	struct Jogador *player;
-	// player = malloc(sizeof(struct Jogador));
-	// memset(player,0,sizeof(struct Jogador));
 	filename = arquivo_rank(nivel);
 	printf("Digite seu nome: ");
 	name = ler_vetor(stdin);
 	player = criar_jogador(name,pontos);
-	// printf("your name = %s\nyour points = %d\n", player->nome,player->pontos);
 
 	if( fwrite_jogador(player, filename,"ab") == EOF){
 		printf("Erro ao adicionar jogador ao ranking\n");
@@ -357,8 +328,8 @@ void menu_show_rank(){
 	if( !rankear(filename,nivel) ){
 		printf("Nenhum jogador cadastrado no ranking desse nivel\n");
 	}
-	cleanit(1);
 	free(filename);
+	cleanit(1);
 }
 
 int rankear(char *filename,int nivel){
@@ -368,9 +339,6 @@ int rankear(char *filename,int nivel){
 	arq = fopen(filename,"rb");
 	if(!arq){
 		return 0;
-		// printf("Nenhum jogador cadastrado no ranking desse nivel\n");
-		// printf("Erro ao abrir arquivo ranking\n");
-		// exit(1);
 	}
 	arr = fread_rank(arq);
 	sort_rank(arr);
@@ -379,12 +347,7 @@ int rankear(char *filename,int nivel){
 		printf("%2d- %4d  %s\n",i+1,arr[i]->pontos,arr[i]->nome);
 		free(arr[i]);
 	}
-	// free(arr[i+1]);
-	// arr = realloc(arr,sizeof(struct Jogador *));
 	free(arr);
-	// printf("Aperte qualquer tecla para voltar\n");
-	// getchar();
-	// getchar();
 	fclose(arq);
 	return 1;
 }
