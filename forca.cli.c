@@ -24,39 +24,35 @@ void cleanit(int aviso){
 		printf("Aperte qualquer tecla para continuar.\n");
 		getchar();
 		getchar();
-	}else{
-		// if(os == 'l') system("clear");
-		// else if (os == 'w') system("cls");
-		// else printf("\n-\n");
-		printf("\n.-.-.-.\n");
 	}
-
-	/*
-	*/
+	if(os == 'l') system("clear");
+	else if (os == 'w') system("cls");
+	else printf("\n-\n");
 }
 
 int menu(){
-	int opcao = 0, aviso =0;
+	int opcao = 0, aviso = 0;
 	do{
 		cleanit(aviso);
 		printf("1 - Jogar\n2 - Ver Ranking\n3 - Cadastrar Palavras\n4 - Creditos\n5 - Sair\n > ");
 		scanf("%d",&opcao);
 		switch (opcao) {
 			case 1:
-				jogar();
+				if(jogar() == 1) aviso = 1;
+				else aviso = 0;
 				break;
 			case 2:
 				menu_rank();
-				printf("\nEm breve\n");
+				aviso = 0;
 				break;
 			case 3:
 				menu_cadastrar();
+				aviso = 0;
 				break;
 			case 4:
-				/* creditos(); */
-				printf("\nBy Tora Balde\n\n");
-				getchar();
-				getchar();
+				cleanit(0);
+				creditos();
+				aviso = 1;
 				break;
 			case 5:
 				printf("\n!\n");
@@ -64,14 +60,13 @@ int menu(){
 			default:
 				printf("\nOpcao invalida\n");
 				aviso = 1;
-
 				break;
 		}
 	}while(opcao != 5);
 	return 0;
 }
 
-void jogar(){
+int jogar(){
 	int nivel,tamanho,cont_j = 1, raw_pontos = 0, pontos = 0, aviso = 0;
 	char *word,*empty;
 	char deseja = ' ';
@@ -81,8 +76,8 @@ void jogar(){
 
 	arq = fopen(WORDBANK,"rb");
 	if (!arq){
-		printf("Erro ao abrir arquivo\n");
-		exit(1);
+		printf("Nao existe nenhuma palavra cadastrada.\n");
+		return 1;
 	}
 	do{
 		cleanit(aviso);
@@ -120,7 +115,7 @@ void jogar(){
 		free(empty);
 
 		if(raw_pontos > 0){
-			menu_add_rank(nivel,pontos);
+			menu_rankear(nivel,pontos);
 		}
 		do {
 			printf("Deseja continuar jogando? (s ou n) ");
@@ -139,7 +134,7 @@ void jogar(){
 		} while(deseja == ' ');
 
 	}while(cont_j == 1);
-	fclose(arq);
+	return fclose(arq);
 }
 
 char recebe_letra(char *tentativas){
@@ -164,9 +159,9 @@ char recebe_letra(char *tentativas){
 }
 
 int forca(char *word,char *empty){
-	int tamanho = str_len(word), vidas = 6, numtent = 0, erros = 0, fim = 0, aviso = 0;
+	int tamanho = str_len(word), vidas = 6, numtent = 0, erros = 0, fim = 0;
 	char *tentativas;
-	char letra;
+	char letra = 'a';
 	tentativas = malloc(sizeof(char) * 27);
 	strcpy(tentativas,"");
 	if(!tentativas){
@@ -178,14 +173,12 @@ int forca(char *word,char *empty){
 		imprime_forca(empty,tamanho,vidas,tentativas);
 		letra = recebe_letra(tentativas);
 		if( letra == ' '){
-			printf("\nLetra já tentada\n");
 			continue;
 		}
 		numtent++;
 		if(acha_letra(word,empty,letra) == 0){
 			vidas--;
 			erros++;
-			aviso = 0;
 		}
 		if(strcmp(word,empty) == 0 || vidas == 0){
 			cleanit(0);
@@ -262,7 +255,7 @@ void menu_cadastrar(){
 	}while(cont);
 }
 
-void menu_add_rank(int nivel,int pontos){
+void menu_rankear(int nivel,int pontos){
 	char *name;
 	char *filename;
 	struct Jogador *player,**arr;
@@ -272,10 +265,9 @@ void menu_add_rank(int nivel,int pontos){
 	player = criar_jogador(name,pontos);
 
 	rankear(filename,player);
-
+	cleanit(0);
 	list_rank(filename);
 
-	printf("Para ver sua posicao no rank acesse a opcao de ver o rank.\n");
 	free(player);
 	free(name);
 	free(filename);
@@ -304,12 +296,25 @@ int list_rank(char *filename){
 		return 0;
 	}
 	arr = fread_rank(arq);
-	printf("RANKING NIVEL %c:\n #  Pontos  Nome\n",filename[strlen(filename)-1]);
+	printf(" RANKING NIVEL %c:\n  #  Pts   Nome\n",filename[strlen(filename)-1]);
 	for(; i < NUM_J; i++){
-		printf("%2d- %4d  %s\n",i+1,arr[i]->pontos,arr[i]->nome);
+		printf(" %2d- %4d  %s\n",i+1,arr[i]->pontos,arr[i]->nome);
 		free(arr[i]);
 	}
 	free(arr);
 	fclose(arq);
 	return 1;
+}
+
+void creditos(){
+	printf(" Desenvolvido por:\n");
+	printf("  Alexandre Matheus Dantas dos Santos,\n");
+	printf("  Breno Barreto Braga de Freitas,\n");
+	printf("  Lynnick de Souza dos Santos,\n");
+	printf("  Marcelo Rolim Sobreira,\n");
+	printf("  Ramoon Nobrega Bandeira,\n");
+	printf("  Valter de Sousa Filho.\n");
+	printf(" Como projeto do terceiro estagio da disciplina de\n");
+	printf(" Introducao a Linguagens de Programacao,\n");
+	printf(" ministrada pelo Professor Renato Atouguia.\n\n");
 }

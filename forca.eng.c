@@ -6,8 +6,6 @@
 #include "palavra.h"
 #include "jogador.h"
 
-const char *rank = "rank";
-
 void zera_palavra(char *to, char *from){
 	for(; *from != '\0'; from++,to++){
 		if(*from == ' ' || *from == '-') *to = *from;
@@ -173,21 +171,8 @@ void rsort_rank(struct Jogador **arr) {
 char *arquivo_rank(int nivel){
 	char *filename;
 	filename = malloc(sizeof(char)*6);
-	switch (nivel) {
-		case 1:
-			strcpy(filename,"rank1");
-			break;
-		case 2:
-			strcpy(filename,"rank2");
-			break;
-		case 3:
-			strcpy(filename,"rank3");
-			break;
-		default:
-			printf("Erro, nivel invalido\n");
-			exit(1);
-			break;
-	}
+	strcpy(filename,"rank");
+	sprintf(filename,"rank%d",nivel);
 	return filename;
 }
 
@@ -200,10 +185,15 @@ int rankear(char *filename,struct Jogador *player){
 		arr = malloc(sizeof(struct Jogador *));
 	}else{
 		arr = fread_rank(arq);
+		/* Ja tendo 10 e o player possuindo menos pontos que o ultimo,
+		  nao eh preciso fazer nada */
+		if(NUM_J >= 10 && player->pontos <= arr[NUM_J-1]->pontos){
+			return fclose(arq);;
+		}
 		fclose(arq);
 	}
 	arr = add_jogador(player,arr,&NUM_J);
-	rsort_rank(arr);
+	if(NUM_J > 1) rsort_rank(arr);
 	arq = fopen(filename,"wb");
 
 	fwrite_rank(arq,arr);

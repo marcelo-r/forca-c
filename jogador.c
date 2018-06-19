@@ -42,7 +42,7 @@ struct Jogador *fread_jogador(FILE *arq){
 		printf("Erro arquivo jogador\n");
 		exit(1);
 	}
-	if( fread(&points/*(player->pontos)*/,sizeof(int),1,arq) != 1 ){
+	if( fread(&points,sizeof(int),1,arq) != 1 ){
 		return NULL;
 	}
 	name = ler_vetor(arq);
