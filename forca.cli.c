@@ -143,7 +143,7 @@ char recebe_letra(char *tentativas){
 	getchar();
 	do {
 		printf("Digite uma letra: ");
-		scanf("%s", &letra);
+		scanf("%c", &letra);
 		if(check_letra(&letra) == '\0'){
 			printf("Letra invalida\n");
 			continue;
