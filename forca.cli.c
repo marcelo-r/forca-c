@@ -308,12 +308,7 @@ int list_rank(char *filename){
 
 void creditos(){
 	printf(" Desenvolvido por:\n");
-	printf("  Alexandre Matheus Dantas dos Santos,\n");
-	printf("  Breno Barreto Braga de Freitas,\n");
-	printf("  Lynnick de Souza dos Santos,\n");
 	printf("  Marcelo Rolim Sobreira,\n");
-	printf("  Ramoon Nobrega Bandeira,\n");
-	printf("  Valter de Sousa Filho.\n");
 	printf(" Como projeto do terceiro estagio da disciplina de\n");
 	printf(" Introducao a Linguagens de Programacao,\n");
 	printf(" ministrada pelo Professor Renato Atouguia.\n\n");
